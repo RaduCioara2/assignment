@@ -1,6 +1,7 @@
 # 1. Infrastructure as Code (IaC) with Terraform
 * Task: Create a Terraform configuration to deploy a multi-tier web application.
 * Requirements:
+
 1.1 VPC with public and private subnets.
 1.2  Internet Gateway and NAT Gateway.
 1.3 EC2 instances in private subnets for the application tier.
@@ -13,7 +14,7 @@
 * Task: Set up a CI/CD pipeline using Azure DevOps YAML pipelines to automate the deployment of the Terraform configuration.
 * Requirements:
 
-2.1 Source code repository
+2.1 Source code repository.
 2.2 Build stage to validate Terraform configuration.
 2.2 Deploy stage to apply the Terraform configuration.
 
