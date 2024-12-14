@@ -3,13 +3,13 @@ variable "environment" {
 }
 
 variable "instance_type" {
-    type = string
+  type = string
 }
 
 variable "az_list" {
-    description = "list of availability zones to deploy ec2"
-    type        = list(string)
-    default     = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+  description = "list of availability zones to deploy ec2"
+  type        = list(string)
+  default     = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
 }
 
 variable "num_availability_zones" {

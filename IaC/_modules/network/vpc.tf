@@ -3,11 +3,11 @@ module "vpc" {
   version = "5.16.0"
 
   name = "eib-${var.environment}"
-  cidr =  var.vpc_cidr_block
+  cidr = var.vpc_cidr_block
 
-  azs              = var.aws_availability_zones
-  private_subnets  = var.eib_private_subnets
-  public_subnets   = var.eib_public_subnets
+  azs             = var.aws_availability_zones
+  private_subnets = var.eib_private_subnets
+  public_subnets  = var.eib_public_subnets
 
   enable_nat_gateway = true
 
@@ -22,7 +22,7 @@ module "vpc" {
   tags = {
     Terraform   = "true"
     Environment = var.environment
-    Name        = "eib-${var.environment}" 
+    Name        = "eib-${var.environment}"
   }
 }
 

@@ -1,0 +1,79 @@
+trigger:
+- main  # Trigger the pipeline on changes to the 'main' branch.
+
+variables:
+  terraformVersion: '1.3.6'  # Set the desired Terraform version.
+  azureSubscription: 'MyAzureSubscription'  # Azure DevOps Service Connection name.
+  tfConfigRepo: 'https://github.com/RaduCioara2/assignment' # URL to your Git repository with Terraform configs.
+  tfStateStorageAccount: 'mystorageaccount'  # Azure storage account for Terraform state.
+  tfStateContainer: 'terraform-state'  # Azure container for storing Terraform state.
+  tfStateKey: 'terraform.tfstate'  # Key (name) for the Terraform state file.
+  tfConfigDir: '/IaC/_modules/*'
+  tfVarsFile: '/IaC/development/*'
+jobs:
+- job: TerraformCI
+  displayName: 'Terraform CI Pipeline'
+  pool:
+    vmImage: 'ubuntu-latest'  # Use Ubuntu for the pipeline agent.
+
+  steps:
+  - task: Checkout@1
+    displayName: 'Checkout Terraform Configuration Repository'
+    inputs:
+      repository: $(tfConfigRepo)  # Checkout the Git repository containing Terraform files.
+
+  - task: UseTerraform@0
+    inputs:
+      terraformVersion: $(terraformVersion)
+
+  - task: AzureCLI@2
+    displayName: 'Set up Azure CLI'
+    inputs:
+      azureSubscription: $(azureSubscription)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo "Setting up Azure CLI for Terraform."
+        az account show
+        az storage account check-name --name $(tfStateStorageAccount)
+
+  - task: AzureCLI@2
+    displayName: 'Initialize Terraform'
+    inputs:
+      azureSubscription: $(azureSubscription)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo "Initializing Terraform"
+        terraform init \
+          -chdir=$(Build.SourcesDirectory)/$(tfConfigDir) \
+          -backend-config="storage_account_name=$(tfStateStorageAccount)" \
+          -backend-config="container_name=$(tfStateContainer)" \
+          -backend-config="key=$(tfStateKey)" \
+          -backend-config="access_key=$(az storage account keys list --resource-group myResourceGroup --account-name $(tfStateStorageAccount) --query '[0].value' -o tsv)"
+
+  - task: AzureCLI@2
+    displayName: 'Validate Terraform Configuration'
+    inputs:
+      azureSubscription: $(azureSubscription)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo "Validating Terraform Configuration"
+        terraform validate -chdir=$(Build.SourcesDirectory)/$(tfConfigDir) -var-file=$(Build.SourcesDirectory)/$(tfVarsFile)
+
+  - task: AzureCLI@2
+    displayName: 'Apply Terraform Configuration'
+    inputs:
+      azureSubscription: $(azureSubscription)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        echo "Applying Terraform Configuration"
+        terraform apply -auto-approve -chdir=$(Build.SourcesDirectory)/$(tfConfigDir) -var-file=$(Build.SourcesDirectory)/$(tfVarsFile)
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      publishLocation: 'Container'
+      artifactName: 'terraform-artifacts'
+      targetPath: '$(Build.ArtifactStagingDirectory)'

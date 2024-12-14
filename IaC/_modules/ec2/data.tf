@@ -9,21 +9,26 @@ data "aws_ami" "amzn-linux-2023-ami" {
 
 data "aws_availability_zones" "available" {}
 
-data "aws_subnets" "subnets" {
+data "aws_subnets" "private" {
   filter {
-    name   = "availabilityZone"
-    values = data.aws_availability_zones.available.names
+    name   = "vpc-id"
+    values = [data.aws_vpc.current.id]
+  }
+
+  tags = {
+    Tier = "Private"
   }
 }
 
+
 data "aws_vpc" "current" {
-    filter {
-        name   = "tag:Name"
-        values = ["eib-${var.environment}"]
-    }
+  filter {
+    name   = "tag:Name"
+    values = ["eib-${var.environment}"]
+  }
 }
 
 data "aws_route53_zone" "this" {
-    name         = "${var.environment}.eib"
-    private_zone = true
+  name         = "${var.environment}.eib"
+  private_zone = true
 }

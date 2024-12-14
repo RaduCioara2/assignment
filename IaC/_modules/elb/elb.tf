@@ -16,10 +16,10 @@ resource "aws_security_group" "elb_sg" {
   vpc_id = data.aws_vpc.current
 
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -71,9 +71,9 @@ resource "aws_alb_listener" "webapp_https" {
     type = "fixed-response"
 
     fixed_response {
-        content_type = var.alb_blocked_content_type
-        message_body = var.alb_blocked_message_body
-        status_code  = var.alb_blocked_status_code
+      content_type = var.alb_blocked_content_type
+      message_body = var.alb_blocked_message_body
+      status_code  = var.alb_blocked_status_code
     }
   }
 }
@@ -128,8 +128,8 @@ resource "aws_alb_target_group" "webapp_blue" {
   }
 
   tags = {
-      Name = "${var.instance_name_prefix}-blue"
-    }
+    Name = "${var.instance_name_prefix}-blue"
+  }
 }
 
 

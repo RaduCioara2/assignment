@@ -6,7 +6,7 @@ resource "aws_wafv2_ip_set" "albDenyIPSet" {
   addresses          = var.waf_blocked_addresses
 
   tags = {
-      Name = "${var.instance_name_prefix}-${var.environment}-alb-denyIPSet"
+    Name = "${var.instance_name_prefix}-${var.environment}-alb-denyIPSet"
   }
 }
 
@@ -41,29 +41,29 @@ resource "aws_wafv2_web_acl" "webapp_waf" {
   }
 
   rule {
-  name     = "AWSIPBlackList"
-  priority = 2
+    name     = "AWSIPBlackList"
+    priority = 2
 
-  action {
-    block {}
-  }
+    action {
+      block {}
+    }
 
-  statement {
-    or_statement {
-      statement {
-        ip_set_reference_statement {
-          arn = aws_wafv2_ip_set.albDenyIPSet.arn
+    statement {
+      or_statement {
+        statement {
+          ip_set_reference_statement {
+            arn = aws_wafv2_ip_set.albDenyIPSet.arn
+          }
         }
       }
     }
-  }
 
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "AWSIPBlackList"
-    sampled_requests_enabled   = true
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWSIPBlackList"
+      sampled_requests_enabled   = true
+    }
   }
-}
 
   rule {
     name     = "AWSManagedRulesCommonRuleSet"

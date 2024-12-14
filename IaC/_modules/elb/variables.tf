@@ -6,10 +6,10 @@ variable "number_of_instances" {
   description = "Number of EC2 instances launched for the webapp"
   type        = number
 }
+
 variable "instance_name_prefix" {
   description = "Prefix for the EC2 instance names"
   type        = string
-  default     = "webapp"
 }
 
 variable "ext_alb_idle_timeout_sec" {
@@ -67,7 +67,7 @@ variable "webapp_blue_alb_healthcheck_path" {
 
 variable "waf_blocked_addresses" {
   description = "IP set that will be bocked"
-  type = list(string)
+  type        = list(string)
 }
 #######################################
 # blocked fixed message
