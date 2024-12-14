@@ -63,3 +63,80 @@ resource "aws_cloudwatch_metric_alarm" "disk_alarm" {
   alarm_actions = [aws_sns_topic.disk_alarm_topic[each.key].arn]
   ok_actions    = [aws_sns_topic.disk_alarm_topic[each.key].arn]
 }
+
+
+resource "aws_cloudwatch_dashboard" "instance_dashboard" {
+  dashboard_name = "MyApp-EC2-Metrics-Dashboard"  # You can give this a custom name
+
+  dashboard_body = jsonencode({
+    widgets = flatten([
+      for instance in data.aws_instance.example_instances.instances : [
+        # CPU Widget for the instance
+        {
+          width  = 6
+          height = 6
+          type   = "metric"
+          properties = {
+            title       = "CPU Utilization for ${instance.id}"
+            metrics     = [
+              ["AWS/EC2", "CPUUtilization", "InstanceId", instance.id]
+            ]
+            view        = "timeSeries"
+            stacked     = false
+            region      = "us-west-2"  # Change to your AWS region
+            period      = 300
+            stat        = "Average"
+            yAxis       = {
+              left  = { label = "CPU Utilization (%)", min = 0, max = 100 }
+              right = { show = false }
+            }
+          }
+        },
+
+        # Memory Widget for the instance
+        {
+          width  = 6
+          height = 6
+          type   = "metric"
+          properties = {
+            title       = "Memory Usage for ${instance.id}"
+            metrics     = [
+              ["CWAgent", "mem_used_percent", "InstanceId", instance.id]
+            ]
+            view        = "timeSeries"
+            stacked     = false
+            region      = "us-west-2"  # Change to your AWS region
+            period      = 300
+            stat        = "Average"
+            yAxis       = {
+              left  = { label = "Memory Usage (%)", min = 0, max = 100 }
+              right = { show = false }
+            }
+          }
+        },
+
+        # Disk Widget for the instance
+        {
+          width  = 6
+          height = 6
+          type   = "metric"
+          properties = {
+            title       = "Disk Usage for ${instance.id}"
+            metrics     = [
+              ["CWAgent", "disk_used_percent", "InstanceId", instance.id]
+            ]
+            view        = "timeSeries"
+            stacked     = false
+            region      = "us-west-2"  # Change to your AWS region
+            period      = 300
+            stat        = "Average"
+            yAxis       = {
+              left  = { label = "Disk Usage (%)", min = 0, max = 100 }
+              right = { show = false }
+            }
+          }
+        }
+      ]
+    ])
+  })
+}
